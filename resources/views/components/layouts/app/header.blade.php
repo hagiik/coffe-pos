@@ -15,6 +15,12 @@
                 <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                     {{ __('Dashboard') }}
                 </flux:navbar.item>
+                <flux:navbar.item icon="shopping-bag" :href="route('order')" :current="request()->routeIs('order')" wire:navigate>
+                    {{ __('Order') }}
+                </flux:navbar.item>
+                <flux:navbar.item icon="fire" :href="route('dashboard')" :current="request()->routeIs('kasir')" wire:navigate>
+                    {{ __('Dapur') }}
+                </flux:navbar.item>
             </flux:navbar>
 
             <flux:spacer />
@@ -99,8 +105,14 @@
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')">
                     <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Dashboard') }}
+                        {{ __('Dashboard') }}
                     </flux:navlist.item>
+                    <flux:navbar.item icon="shopping-bag" :href="route('order')" :current="request()->routeIs('order')" wire:navigate>
+                        {{ __('Order') }}
+                    </flux:navbar.item>
+                    <flux:navbar.item icon="fire" :href="route('dashboard')" :current="request()->routeIs('kasir')" wire:navigate>
+                        {{ __('Dapur') }}
+                    </flux:navbar.item>
                 </flux:navlist.group>
             </flux:navlist>
 
