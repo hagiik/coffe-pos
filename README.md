@@ -103,7 +103,26 @@ php artisan migrate --seed
 php artisan make:filament-user
 ```
 
-6. **Akses Dashboard Filament:**
+6. **Konfigurasi Shiled untuk Super-admin:**
+
+```bash
+php artisan shield:super-admin
+```
+
+7. **Beri Permission Access untuk Super-Admin:**
+
+* Pergi kehalaman Admin
+* lakukan Edit pada role Super-admin
+* kamu pilih Select All untuk memberi permission access keseluruh halaman admin
+* kemudian simpan
+
+8. **Aktifkan Shield policies admin:**
+
+```bash
+php artisan shield:generate --panel=admin --all
+```
+
+9. **Akses Dashboard Filament:**
 
 ```
 http://localhost:8000/admin
