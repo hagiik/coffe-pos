@@ -123,6 +123,101 @@ http://localhost:8000/admin
 
 ---
 
+
+
+## 📋 Log Aktivitas Admin
+
+Aplikasi ini telah dilengkapi dengan fitur **Log Aktivitas** menggunakan plugin resmi Filament: [`rmsramos/filament-activitylog`](https://filamentphp.com/plugins/rmsramos-activitylog). Fitur ini memungkinkan admin untuk memantau semua perubahan data penting yang terjadi melalui dashboard.
+
+### ✨ Aktivitas yang Dicatat
+
+* Login dan logout admin
+* Aksi **Create**, **Update**, dan **Delete** pada:
+
+  * Produk
+  * Kategori produk
+  * Varian produk
+  * Pemesanan
+* Aktivitas umum yang dilakukan oleh admin dalam panel Filament
+
+### 🗂️ Struktur Tabel `activity_log`
+
+Plugin ini menggunakan tabel `activity_log` dari package `spatie/laravel-activitylog`. Beberapa kolom penting:
+
+| Kolom         | Tipe      | Keterangan                             |
+| ------------- | --------- | -------------------------------------- |
+| id            | bigint    | Primary Key                            |
+| log\_name     | string    | Nama log (opsional)                    |
+| description   | string    | Deskripsi aktivitas                    |
+| subject\_type | string    | Nama model terkait                     |
+| subject\_id   | bigint    | ID dari model terkait                  |
+| causer\_type  | string    | Tipe user yang melakukan aksi          |
+| causer\_id    | bigint    | ID user yang melakukan aksi            |
+| properties    | JSON      | Data tambahan (sebelum/sesudah update) |
+| created\_at   | timestamp | Tanggal dan waktu aktivitas            |
+
+---
+
+## 📋 Log Aktivitas Admin
+* Jika ingin menambahkan Log Activity bisa dilakukan pada bagian models
+```bash
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+
+class Product extends Model
+{
+    use HasFactory, LogsActivity;
+    protected $fillable = ['name'];
+
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name'])
+            ->setDescriptionForEvent(fn(string $eventName) => "Product has been {$eventName}");
+    }
+}
+
+```
+---
+## 📍 Akses Log di Dashboard
+
+Log aktivitas dapat dilihat langsung melalui menu **"Activity Logs"** di sidebar admin:
+
+```
+Admin Dashboard → Activity Logs
+```
+
+### Fitur Tampilan:
+
+* Pencarian aktivitas
+* Filter berdasarkan:
+
+  * Tipe aksi (`created`, `updated`, `deleted`)
+  * Nama model
+  * Admin (causer)
+* Tampilan detail per aktivitas
+
+---
+
+## ⚙️ Instalasi (Jika Belum Terpasang)
+
+Jika kamu ingin menambahkan fitur ini ke proyek lain, berikut langkahnya:
+
+```bash
+composer require rmsramos/filament-activitylog
+php artisan migrate
+```
+
+
+---
+
 ## 📝 Catatan
 
 * Gambar produk disimpan di direktori `public/storage/product-images`
