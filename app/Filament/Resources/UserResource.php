@@ -25,7 +25,7 @@ class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user';
     protected static ?string $navigationGroup = 'Admin Access';
     protected static ?string $navigationLabel = 'User';
-
+    protected static ?int $navigationSort = 0;
     public static function form(Form $form): Form
     {
         return $form
@@ -105,6 +105,11 @@ class UserResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 
     public static function getPages(): array

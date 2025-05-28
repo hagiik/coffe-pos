@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends Model
 {
-    use HasFactory;
-    protected $fillable = ['name', 'slug', 'category_id','images'];
+    use HasFactory, LogsActivity;
+    protected $fillable = ['name', 'slug','description', 'category_id','images'];
 
     protected $casts = [
         'images' => 'array',
@@ -22,5 +24,12 @@ class Product extends Model
     }
     public function orders() {
         return $this->hasMany(Order::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'slug', 'description', 'category_id', 'images'])
+            ->setDescriptionForEvent(fn(string $eventName) => "Product has been {$eventName}");
     }
 }

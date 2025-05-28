@@ -22,7 +22,7 @@ class OrdersResource extends Resource
    protected static ?string $navigationIcon = 'heroicon-o-receipt-refund';
     protected static ?string $navigationGroup = 'Produk List';
     protected static ?string $navigationLabel = 'Order List';
-
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
@@ -110,17 +110,73 @@ class OrdersResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->heading('Clients')
-            ->description('Manage your clients here.')
             ->columns([
-                TextColumn::make('id')->label('ID'),
                 TextColumn::make('customer_name')->label('Nama Pelanggan')->searchable(),
-                TextColumn::make('order_type')->label('Tipe'),
-                TextColumn::make('payment_method')->label('Metode Pembayaran'),
-                TextColumn::make('status')->label('Status'),
-                TextColumn::make('pembayaran')->label('Pembayaran'),
+                TextColumn::make('order_type')
+                    ->label('Tipe')
+                    ->sortable()
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'pulang' => 'primary',
+                        'ditempat' => 'success',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'pulang' => 'heroicon-s-truck',
+                        'ditempat' => 'heroicon-s-building-storefront',
+                    })
+                    ->formatStateUsing(function ($state) {
+                        return ucfirst($state);
+                    }),
+                TextColumn::make('payment_method')
+                    ->label('Metode Pembayaran')
+                    ->sortable()
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Cash' => 'primary',
+                        'Qris' => 'success',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'Cash' => 'heroicon-s-banknotes',
+                        'Qris' => 'heroicon-s-device-phone-mobile',
+                    })
+                    ->formatStateUsing(function ($state) {
+                        return ucfirst($state);
+                    }),
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->sortable()
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Menunggu' => 'info',
+                        'Diproses' => 'warning',
+                        'Selesai' => 'success',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'Menunggu' => 'heroicon-s-clock',
+                        'Diproses' => 'heroicon-s-arrow-path',
+                        'Selesai' => 'heroicon-s-check-badge',
+                    })
+                    ->formatStateUsing(function ($state) {
+                        return ucfirst($state);
+                    }),
+                TextColumn::make('pembayaran')
+                    ->label('Pembayaran')
+                    ->sortable()
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                            'Menunggu' => 'danger',
+                            'Sudah Dibayar' => 'success',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                            'Menunggu' => 'heroicon-s-clock',
+                            'Sudah Dibayar' => 'heroicon-s-banknotes',
+                    }),
                 TextColumn::make('total_price')->money('IDR')->label('Total'),
-                TextColumn::make('created_at')->dateTime()->label('Waktu Pemesanan'),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->label('Waktu Pemesanan')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
@@ -130,9 +186,9 @@ class OrdersResource extends Resource
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
@@ -141,6 +197,11 @@ class OrdersResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 
     public static function getPages(): array

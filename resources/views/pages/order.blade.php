@@ -1,6 +1,6 @@
 <x-layouts.app :title="__('Order')">
-    <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="relative h-full flex-1 overflow-hidden">
+    <div class="flex flex-col gap-4 rounded-xl min-h-screen">
+        <div class="flex-1">
             @livewire('order-page')
         </div>
     </div>

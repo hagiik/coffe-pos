@@ -11,6 +11,7 @@ use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -31,7 +32,7 @@ class ProductsResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?string $navigationGroup = 'Produk List';
     protected static ?string $navigationLabel = 'Produk';
-
+    protected static ?int $navigationSort = 1;
     public static function form(Form $form): Form
     {
         return $form
@@ -49,12 +50,15 @@ class ProductsResource extends Resource
                     ->maxLength(255)
                     ->helperText('Slug akan terisi otomatis setelah mengisi nama poruduk')
                     ->unique(Product::class, 'slug', ignoreRecord: true),
-
+                Textarea::make('description')  
+                    ->label('Deskripsi Produk')
+                    ->helperText('Deskripsi produk ini akan ditampilkan di halaman detail produk')
+                    ->required()
+                    ->maxLength(50),
                 Forms\Components\Select::make('category_id')
                     ->relationship('category', 'name')
                     ->label('Kategori Produk')
-                    ->required()
-                    ->columnSpanFull(),
+                    ->required(),
                 FileUpload::make('images')
                     ->multiple()
                     ->label('Product Images')
@@ -62,24 +66,38 @@ class ProductsResource extends Resource
                     ->directory('product-images')
                     ->imageEditor()
                     ->uploadingMessage('Uploading image...')
-                    ->helperText('Upload multiple product images')
+                    ->helperText('Maximum 5 gambar, ukuran maksimal 2MB per gambar')
+                    ->maxFiles(5)
+                    ->maxSize(2048) // 2MB
                     ->columnSpanFull(),
 
                 Repeater::make('variants')
                     ->relationship('variants')
                     ->schema([
-                        Select::make('size')->options([
-                            'Kecil' => 'Kecil',
-                            'Sedang' => 'Sedang',
-                            'Besar' => 'Besar',
-                            'Normal' => 'Normal',
-                        ]),
-                        Select::make('temperature')->options([
-                            'Dingin' => 'Dingin',
-                            'Hangat' => 'Hangat',
-                            'Normal' => 'Normal',
-                        ]),
-                        TextInput::make('price')->numeric(),
+                        // Select::make('size')->options([
+                        //     'Kecil' => 'Kecil',
+                        //     'Sedang' => 'Sedang',
+                        //     'Besar' => 'Besar',
+                        //     'Normal' => 'Normal',
+                        // ]),
+                        TextInput::make('size')
+                            ->label('Ukuran')
+                            ->required()
+                            ->maxLength(50)
+                            ->helperText('Contoh: Kecil, Sedang, Besar, Normal'),
+                        TextInput::make('temperature')
+                            ->label('Suhu')
+                            ->required()
+                            ->maxLength(50)
+                            ->helperText('Contoh: Dingin, Hangat, Normal'),
+                        // Select::make('temperature')->options([
+                        //     'Dingin' => 'Dingin',
+                        //     'Hangat' => 'Hangat',
+                        //     'Normal' => 'Normal',
+                        // ]),
+                        TextInput::make('price')
+                            ->numeric()
+                            ->helperText('Masukan Harga Produk'),
                     ])
                     ->label('Varian Produk')
                     // ->minItems(1)
@@ -133,6 +151,11 @@ class ProductsResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 
     public static function getPages(): array

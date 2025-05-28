@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\product_variants; // Gunakan PascalCase secara konsisten
+use App\Models\product_variants;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
@@ -21,8 +21,8 @@ class OrderPage extends Component
     public $selectedSize = [];
     public $selectedTemperature = [];
     public $cart = [];
-    public $orderType = 'ditempat'; // default value
-    public $paymentMethod = 'Cash'; // default value
+    public $orderType = 'ditempat'; 
+    public $paymentMethod = 'Cash';
 
     public function render()
     {
@@ -113,7 +113,7 @@ class OrderPage extends Component
         $this->selectedPrice[$productId] = $variant?->price;
     }
 
-public function getSubtotal()
+    public function getSubtotal()
     {
         return collect($this->cart)->sum(function ($item) {
             return $item['price'] * $item['qty'];
@@ -170,21 +170,20 @@ public function getSubtotal()
         }
     }
 
-      public function placeOrder()
+    public function placeOrder()
     {
         $this->validate([
             'paymentMethod' => 'required|in:Cash,Qris',
             'orderType' => 'required|in:ditempat,pulang',
             'cart' => 'required|array|min:1',
         ]);
-        // Validasi minimal
+        
         if (empty($this->cart)) {
             session()->flash('error', 'Keranjang belanja kosong');
             return;
         }
 
         DB::transaction(function () {
-            // Buat order utama
             $order = Order::create([
                 'customer_name' => Auth::user()->name,
                 'status' => 'Diproses',
@@ -194,7 +193,6 @@ public function getSubtotal()
                 'total_price' => $this->getTotal(),
             ]);
 
-            // Simpan item-itemnya
             foreach ($this->cart as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -205,13 +203,12 @@ public function getSubtotal()
                 ]);
             }
 
-            // Reset keranjang
             $this->cart = [];
             $this->orderType = 'ditempat';
             $this->paymentMethod = 'Cash';
         });
 
         session()->flash('success', 'Pesanan berhasil dibuat!');
-        // Redirect atau tindakan lain setelah order berhasil
+
     }
 }
