@@ -74,12 +74,6 @@ class ProductsResource extends Resource
                 Repeater::make('variants')
                     ->relationship('variants')
                     ->schema([
-                        // Select::make('size')->options([
-                        //     'Kecil' => 'Kecil',
-                        //     'Sedang' => 'Sedang',
-                        //     'Besar' => 'Besar',
-                        //     'Normal' => 'Normal',
-                        // ]),
                         TextInput::make('size')
                             ->label('Ukuran')
                             ->required()
@@ -90,11 +84,6 @@ class ProductsResource extends Resource
                             ->required()
                             ->maxLength(50)
                             ->helperText('Contoh: Dingin, Hangat, Normal'),
-                        // Select::make('temperature')->options([
-                        //     'Dingin' => 'Dingin',
-                        //     'Hangat' => 'Hangat',
-                        //     'Normal' => 'Normal',
-                        // ]),
                         TextInput::make('price')
                             ->numeric()
                             ->helperText('Masukan Harga Produk'),
@@ -117,7 +106,8 @@ class ProductsResource extends Resource
                     ->sortable(),
 
                 TextColumn::make('slug')
-                    ->label('Slug'),
+                    ->label('Slug')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('category.name')
                     ->label('Kategori'),
@@ -136,8 +126,9 @@ class ProductsResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

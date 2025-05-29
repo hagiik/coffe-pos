@@ -20,6 +20,7 @@ class OrderPage extends Component
     public $selectedProduct;
     public $selectedSize = [];
     public $selectedTemperature = [];
+    public $customername = '';
     public $cart = [];
     public $orderType = 'ditempat'; 
     public $paymentMethod = 'Cash';
@@ -88,6 +89,7 @@ class OrderPage extends Component
     public function updatedSelectedSize($value, $key)
     {
         $this->updateVariantPrice($key);
+        $this->selectedTemperature[$key] = null;
     }
 
     public function updatedSelectedTemperature($value, $key)
@@ -95,19 +97,36 @@ class OrderPage extends Component
         $this->updateVariantPrice($key);
     }
 
+    public function getTemperaturesBySize($productId, $size)
+    {
+        if (!$size) return collect();
+
+        return product_variants::where('product_id', $productId)
+            ->where('size', $size)
+            ->pluck('temperature')
+            ->unique();
+    }
     public function updateVariantPrice($productId)
     {
         $size = $this->selectedSize[$productId] ?? null;
         $temperature = $this->selectedTemperature[$productId] ?? null;
 
-        if (!$size || !$temperature) {
+        if (!$size) {
             $this->selectedPrice[$productId] = null;
+            $this->selectedTemperature[$productId] = null;
             return;
+        }
+
+        // Jika temperature yang dipilih tidak tersedia untuk size yang dipilih, reset temperature
+        $availableTemps = $this->getTemperaturesBySize($productId, $size);
+        if ($temperature && !$availableTemps->contains($temperature)) {
+            $this->selectedTemperature[$productId] = null;
+            $temperature = null;
         }
 
         $variant = product_variants::where('product_id', $productId)
             ->where('size', $size)
-            ->where('temperature', $temperature)
+            ->when($temperature, fn($q) => $q->where('temperature', $temperature))
             ->first();
 
         $this->selectedPrice[$productId] = $variant?->price;
@@ -185,7 +204,8 @@ class OrderPage extends Component
 
         DB::transaction(function () {
             $order = Order::create([
-                'customer_name' => Auth::user()->name,
+                // 'customer_name' => Auth::user()->name,
+                'customer_name' => $this->customername ?: 'Pelanggan Baru',
                 'status' => 'Diproses',
                 'pembayaran' => 'Sudah Dibayar',
                 'order_type' => $this->orderType ?? 'ditempat',
@@ -204,6 +224,7 @@ class OrderPage extends Component
             }
 
             $this->cart = [];
+            $this->customername = [];
             $this->orderType = 'ditempat';
             $this->paymentMethod = 'Cash';
         });

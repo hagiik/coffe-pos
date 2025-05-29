@@ -64,7 +64,7 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationGroup('Admin Access')
                     ->navigationIcon('heroicon-o-chat-bubble-left-ellipsis')
                     ->navigationCountBadge(true)
-                    ->navigationSort(2),
+                    ->navigationSort(1),
             ])
             ->authMiddleware([
                 Authenticate::class,

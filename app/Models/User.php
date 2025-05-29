@@ -62,7 +62,7 @@ class User extends Authenticatable
             ->implode('');
     }
 
-      public function getActivitylogOptions(): LogOptions
+    public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly(['name', 'email', 'email_verified_at'])

@@ -1,8 +1,8 @@
-<div class="max-h-screen p-2 md:p-4 grid grid-cols-1 sm:grid-col-2 md:grid-cols-3 gap-2 md:gap-4">
+<div class="max-h-screen p-2 md:p-4 grid grid-cols-1 sm:grid-col-2 md:grid-cols-3 gap-2 md:gap-4 bg-white dark:bg-zinc-800">
     <!-- LEFT SECTION (Products) -->
     <div class="md:col-span-2 space-y-2 md:space-y-4 overflow-y-auto h-[calc(100vh-8rem)] md:h-screen md:sticky md:top-0">
         <!-- Search -->
-        <div class="flex items-center gap-2 sticky top-0 bg-white dark:bg-gray-800 z-10 p-2">
+        <div class="flex items-center gap-2 sticky top-0 bg-white dark:bg-zinc-800 z-10 p-2">
             <input 
                 type="text" 
                 wire:model.live="search" 
@@ -12,7 +12,7 @@
         </div>
 
         <!-- Categories -->
-        <div class="flex overflow-x-auto gap-2 pb-2 sticky top-16 bg-white dark:bg-gray-800 z-10 p-2">
+        <div class="flex overflow-x-auto gap-2 pb-2 sticky top-16 bg-white dark:bg-zinc-800 z-10 p-2">
             <!-- All Category -->
             <button wire:click="selectCategory(null)"
                 class="whitespace-nowrap px-3 py-1 rounded-full text-sm {{ $selectedCategory === null ? 'bg-orange-500 text-white' : 'border border-orange-600 text-orange-600 dark:text-orange-300' }}">
@@ -83,27 +83,29 @@
                             </div>
 
                             <!-- Temperature Selection -->
-                            <div class="space-y-1">
-                                <div class="text-xs md:text-sm font-medium">Pilih Variant:</div>
-                                <div class="flex gap-1 flex-wrap">
-                                    @foreach($product->variants->pluck('temperature')->unique() as $temp)
-                                        <button
-                                            type="button"
-                                            wire:click="$set('selectedTemperature.{{ $product->id }}', '{{ $temp }}')"
-                                            class="px-2 py-1 rounded border text-xs md:text-sm
-                                                {{ ($selectedTemperature[$product->id] ?? null) === $temp 
-                                                    ? 'bg-orange-500 text-white border-orange-600' 
-                                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 hover:bg-orange-100 dark:hover:bg-orange-900' }}">
-                                            {{ $temp }}
-                                        </button>
-                                    @endforeach
+                            @if($selectedSize[$product->id] ?? false)
+                                <div class="space-y-1">
+                                    <div class="text-xs md:text-sm font-medium">Pilih Variant:</div>
+                                    <div class="flex gap-1 flex-wrap">
+                                        @foreach($this->getTemperaturesBySize($product->id, $selectedSize[$product->id]) as $temp)
+                                            <button
+                                                type="button"
+                                                wire:click="$set('selectedTemperature.{{ $product->id }}', '{{ $temp }}')"
+                                                class="px-2 py-1 rounded border text-xs md:text-sm
+                                                    {{ ($selectedTemperature[$product->id] ?? null) === $temp 
+                                                        ? 'bg-orange-500 text-white border-orange-600' 
+                                                        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 hover:bg-orange-100 dark:hover:bg-orange-900' }}">
+                                                {{ $temp }}
+                                            </button>
+                                        @endforeach
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
 
                             <!-- Add to Cart Button -->
                             <button
                                 wire:click="addSelectedToCartDirect({{ $product->id }})"
-                                class="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm md:text-base py-1 md:py-2 rounded mt-1 flex items-center justify-center gap-1">
+                                class="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm md:text-base py-1 md:py-2 rounded-md mt-1 flex items-center justify-center gap-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
@@ -123,7 +125,7 @@
 
     <!-- RIGHT SECTION (Cart) -->
     <div class="md:col-span-1 md:sticky md:mt-2">
-        <div class="shadow p-3 md:p-4 rounded-lg bg-white dark:bg-gray-800 min-h-[calc(100vh-8rem)] md:min-h-screen md:h-screen overflow-y-auto md:sticky md:top-0 flex flex-col">
+        <div class="shadow p-3 md:p-4 rounded-lg bg-white dark:bg-zinc-800 min-h-[calc(100vh-8rem)] md:min-h-screen md:h-screen overflow-y-auto md:sticky md:top-0 flex flex-col">
             @if (session()->has('success'))
                 <div x-data="{ visible: true }" x-show="visible" class="mb-2 p-3 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-lg">
                     <div class="flex justify-between items-center">
@@ -218,6 +220,14 @@
                     <span>Total</span>
                     <span>Rp{{ number_format($this->getTotal(), 0, ',', '.') }}</span>
                 </div>
+            </div>
+
+            <hr class="border my-2 dark:border-gray-600">
+            <div class="mt-4">
+                <flux:label for="customername" badge="Optional" class="block text-sm md:text-base font-semibold text-gray-800 dark:text-gray-200 mb-1 md:mb-2">Nama Pelanggan</flux:label>
+                <flux:input type="text" id="customername" wire:model.defer="customername"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    placeholder="Masukkan nama pelanggan atau kosongkan" />
             </div>
 
             <!-- Order Type Section -->

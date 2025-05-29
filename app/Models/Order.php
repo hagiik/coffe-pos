@@ -27,7 +27,7 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-       public function getActivitylogOptions(): LogOptions
+    public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly(['customer_name', 'status', 'pembayaran', 'order_type', 'payment_method', 'total_price'])
